@@ -36,7 +36,7 @@ jobs:
     env:
       ARCH: powerpc
       TARGET: kernel
-      SPARSE: 1
+      SPARSE: 2
       SUBARCH: ${{ matrix.subarch }}
       IMAGE: ${{ matrix.image }}
       DEFCONFIG: ${{ matrix.defconfig }}
