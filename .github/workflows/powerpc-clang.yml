@@ -39,6 +39,7 @@ jobs:
       LLVM_IAS: 0
       ARCH: powerpc
       TARGET: kernel
+      CCACHE: 1
       SUBARCH: ${{ matrix.subarch }}
       IMAGE: ${{ matrix.image }}
       DEFCONFIG: ${{ matrix.defconfig }}
@@ -52,8 +53,16 @@ jobs:
         echo "::add-matcher::.github/problem-matchers/compiler-source.json"
         echo "::add-matcher::.github/problem-matchers/compiler-non-source.json"
 
-    - name: build
-      run: ./arch/powerpc/tools/ci-build.sh
+    - name: Load ccache
+      uses: actions/cache@v2
+      with:
+        path: ~/.ccache
+        key: ${{ matrix.image }}-${{ matrix.subarch }}-${{ matrix.defconfig }}
+
+    - name: Build
+      run: |
+        mkdir -p ~/.ccache
+        ./arch/powerpc/tools/ci-build.sh
 
     - name: Archive artifacts
       uses: actions/upload-artifact@v2

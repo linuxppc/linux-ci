@@ -28,6 +28,7 @@ jobs:
     env:
       ARCH: powerpc
       TARGET: ppctests
+      CCACHE: 1
       INSTALL: 1
       SUBARCH: ${{ matrix.subarch }}
       IMAGE: ${{ matrix.image }}
@@ -40,8 +41,16 @@ jobs:
         echo "::add-matcher::.github/problem-matchers/compiler-source.json"
         echo "::add-matcher::.github/problem-matchers/compiler-non-source.json"
 
-    - name: build
-      run: ./arch/powerpc/tools/ci-build.sh
+    - name: Load ccache
+      uses: actions/cache@v2
+      with:
+        path: ~/.ccache
+        key: ${{ matrix.image }}-${{ matrix.subarch }}-${{ matrix.defconfig }}
+
+    - name: Build
+      run: |
+        mkdir -p ~/.ccache
+        ./arch/powerpc/tools/ci-build.sh
 
     - name: Archive artifacts
       uses: actions/upload-artifact@v2

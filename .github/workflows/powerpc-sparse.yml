@@ -36,6 +36,7 @@ jobs:
     env:
       ARCH: powerpc
       TARGET: kernel
+      CCACHE: 1
       SPARSE: 2
       SUBARCH: ${{ matrix.subarch }}
       IMAGE: ${{ matrix.image }}
@@ -50,8 +51,16 @@ jobs:
         echo "::add-matcher::.github/problem-matchers/compiler-source.json"
         echo "::add-matcher::.github/problem-matchers/compiler-non-source.json"
 
+    - name: Load ccache
+      uses: actions/cache@v2
+      with:
+        path: ~/.ccache
+        key: ${{ matrix.image }}-${{ matrix.subarch }}-${{ matrix.defconfig }}
+
     - name: Build
-      run: ./arch/powerpc/tools/ci-build.sh
+      run: |
+        mkdir -p ~/.ccache
+        ./arch/powerpc/tools/ci-build.sh
 
     - name: powerpc sparse errors
       run: grep /linux/arch/powerpc ~/output/sparse.log
