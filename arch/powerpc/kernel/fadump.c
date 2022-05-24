@@ -25,9 +25,10 @@
 #include <linux/cma.h>
 #include <linux/hugetlb.h>
 #include <linux/debugfs.h>
+#include <linux/of.h>
+#include <linux/of_fdt.h>
 
 #include <asm/page.h>
-#include <asm/prom.h>
 #include <asm/fadump.h>
 #include <asm/fadump-internal.h>
 #include <asm/setup.h>
@@ -977,11 +978,14 @@ static int fadump_init_elfcore_header(char *bufp)
 	elf->e_entry = 0;
 	elf->e_phoff = sizeof(struct elfhdr);
 	elf->e_shoff = 0;
-#if defined(_CALL_ELF)
-	elf->e_flags = _CALL_ELF;
-#else
-	elf->e_flags = 0;
-#endif
+
+	if (IS_ENABLED(CONFIG_PPC64_ELF_ABI_V2))
+		elf->e_flags = 2;
+	else if (IS_ENABLED(CONFIG_PPC64_ELF_ABI_V1))
+		elf->e_flags = 1;
+	else
+		elf->e_flags = 0;
+
 	elf->e_ehsize = sizeof(struct elfhdr);
 	elf->e_phentsize = sizeof(struct elf_phdr);
 	elf->e_phnum = 0;
@@ -1671,8 +1675,8 @@ int __init setup_fadump(void)
 }
 /*
  * Use subsys_initcall_sync() here because there is dependency with
- * crash_save_vmcoreinfo_init(), which mush run first to ensure vmcoreinfo initialization
- * is done before regisering with f/w.
+ * crash_save_vmcoreinfo_init(), which must run first to ensure vmcoreinfo initialization
+ * is done before registering with f/w.
  */
 subsys_initcall_sync(setup_fadump);
 #else /* !CONFIG_PRESERVE_FA_DUMP */

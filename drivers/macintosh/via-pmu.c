@@ -59,7 +59,6 @@
 #include <asm/pmac_feature.h>
 #include <asm/pmac_pfunc.h>
 #include <asm/pmac_low_i2c.h>
-#include <asm/prom.h>
 #include <asm/mmu_context.h>
 #include <asm/cputable.h>
 #include <asm/time.h>
@@ -1455,7 +1454,7 @@ next:
 		pmu_pass_intr(data, len);
 		/* len == 6 is probably a bad check. But how do I
 		 * know what PMU versions send what events here? */
-		if (len == 6) {
+		if (IS_ENABLED(CONFIG_ADB_PMU_EVENT) && len == 6) {
 			via_pmu_event(PMU_EVT_POWER, !!(data[1]&8));
 			via_pmu_event(PMU_EVT_LID, data[1]&1);
 		}
