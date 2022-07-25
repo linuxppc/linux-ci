@@ -1738,6 +1738,14 @@ static void io_kbuf_recycle(struct io_kiocb *req, unsigned issue_flags)
 		return;
 
 	/*
+	 * READV uses fields in `struct io_rw` (len/addr) to stash the selected
+	 * buffer data. However if that buffer is recycled the original request
+	 * data stored in addr is lost. Therefore forbid recycling for now.
+	 */
+	if (req->opcode == IORING_OP_READV)
+		return;
+
+	/*
 	 * We don't need to recycle for REQ_F_BUFFER_RING, we can just clear
 	 * the flag and hence ensure that bl->head doesn't get incremented.
 	 * If the tail has already been incremented, hang on to it.
@@ -5066,7 +5074,7 @@ static int io_uring_cmd_prep(struct io_kiocb *req,
 {
 	struct io_uring_cmd *ioucmd = &req->uring_cmd;
 
-	if (sqe->rw_flags)
+	if (sqe->rw_flags || sqe->__pad1)
 		return -EINVAL;
 	ioucmd->cmd = sqe->cmd;
 	ioucmd->cmd_op = READ_ONCE(sqe->cmd_op);
@@ -7972,6 +7980,9 @@ static int io_files_update_with_index_alloc(struct io_kiocb *req,
 	unsigned int done;
 	struct file *file;
 	int ret, fd;
+
+	if (!req->ctx->file_data)
+		return -ENXIO;
 
 	for (done = 0; done < req->rsrc_update.nr_args; done++) {
 		if (copy_from_user(&fd, &fds[done], sizeof(fd))) {
@@ -12928,7 +12939,7 @@ static int io_register_pbuf_ring(struct io_ring_ctx *ctx, void __user *arg)
 {
 	struct io_uring_buf_ring *br;
 	struct io_uring_buf_reg reg;
-	struct io_buffer_list *bl;
+	struct io_buffer_list *bl, *free_bl = NULL;
 	struct page **pages;
 	int nr_pages;
 
@@ -12960,7 +12971,7 @@ static int io_register_pbuf_ring(struct io_ring_ctx *ctx, void __user *arg)
 		if (bl->buf_nr_pages || !list_empty(&bl->buf_list))
 			return -EEXIST;
 	} else {
-		bl = kzalloc(sizeof(*bl), GFP_KERNEL);
+		free_bl = bl = kzalloc(sizeof(*bl), GFP_KERNEL);
 		if (!bl)
 			return -ENOMEM;
 	}
@@ -12969,7 +12980,7 @@ static int io_register_pbuf_ring(struct io_ring_ctx *ctx, void __user *arg)
 			     struct_size(br, bufs, reg.ring_entries),
 			     &nr_pages);
 	if (IS_ERR(pages)) {
-		kfree(bl);
+		kfree(free_bl);
 		return PTR_ERR(pages);
 	}
 
