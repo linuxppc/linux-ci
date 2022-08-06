@@ -199,6 +199,7 @@ static inline void check_stack_overflow(unsigned long sp)
 	}
 }
 
+#ifndef CONFIG_PREEMPT_RT
 static __always_inline void call_do_softirq(const void *sp)
 {
 	/* Temporarily switch r1 to sp, call __do_softirq() then restore r1. */
@@ -217,6 +218,7 @@ static __always_inline void call_do_softirq(const void *sp)
 		   "r11", "r12"
 	);
 }
+#endif
 
 DEFINE_STATIC_CALL_RET0(ppc_get_irq, *ppc_md.get_irq);
 
@@ -333,10 +335,12 @@ void *mcheckirq_ctx[NR_CPUS] __read_mostly;
 void *softirq_ctx[NR_CPUS] __read_mostly;
 void *hardirq_ctx[NR_CPUS] __read_mostly;
 
+#ifndef CONFIG_PREEMPT_RT
 void do_softirq_own_stack(void)
 {
 	call_do_softirq(softirq_ctx[smp_processor_id()]);
 }
+#endif
 
 irq_hw_number_t virq_to_hw(unsigned int virq)
 {
