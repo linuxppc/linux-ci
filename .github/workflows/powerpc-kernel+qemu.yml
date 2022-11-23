@@ -185,6 +185,9 @@ jobs:
       with:
         name: ${{ matrix.defconfig }}-${{ matrix.new-image }}
 
+    - name: Disable network tests
+      run: echo "QEMU_NET_TESTS=0" >> $GITHUB_ENV
+
     - name: Run qemu-${{ matrix.machine }} with ${{ matrix.new-image }} build kernel
       run: ./scripts/boot/qemu-${{ matrix.machine }}
 
