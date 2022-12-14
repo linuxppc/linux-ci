@@ -72,7 +72,7 @@
 #endif
 
 #define STACK_PT_REGS_OFFSET(sym, val)	\
-	DEFINE(sym, STACK_FRAME_OVERHEAD + offsetof(struct pt_regs, val))
+	DEFINE(sym, STACK_INT_FRAME_REGS + offsetof(struct pt_regs, val))
 
 int main(void)
 {
@@ -167,9 +167,8 @@ int main(void)
 	OFFSET(THREAD_CKVRSTATE, thread_struct, ckvr_state.vr);
 	OFFSET(THREAD_CKVRSAVE, thread_struct, ckvrsave);
 	OFFSET(THREAD_CKFPSTATE, thread_struct, ckfp_state.fpr);
-	/* Local pt_regs on stack for Transactional Memory funcs. */
-	DEFINE(TM_FRAME_SIZE, STACK_FRAME_OVERHEAD +
-	       sizeof(struct pt_regs) + 16);
+	/* Local pt_regs on stack in int frame form, plus 16 bytes for TM */
+	DEFINE(TM_FRAME_SIZE, STACK_INT_FRAME_SIZE + 16);
 #endif /* CONFIG_PPC_TRANSACTIONAL_MEM */
 
 	OFFSET(TI_LOCAL_FLAGS, thread_info, local_flags);
@@ -261,7 +260,7 @@ int main(void)
 
 	/* Interrupt register frame */
 	DEFINE(INT_FRAME_SIZE, STACK_INT_FRAME_SIZE);
-	DEFINE(SWITCH_FRAME_SIZE, STACK_FRAME_WITH_PT_REGS);
+	DEFINE(SWITCH_FRAME_SIZE, STACK_SWITCH_FRAME_SIZE);
 	STACK_PT_REGS_OFFSET(GPR0, gpr[0]);
 	STACK_PT_REGS_OFFSET(GPR1, gpr[1]);
 	STACK_PT_REGS_OFFSET(GPR2, gpr[2]);
