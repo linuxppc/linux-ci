@@ -89,7 +89,7 @@ jobs:
       MERGE_CONFIG: ${{ matrix.merge_config }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Register problem matchers
       run: |
@@ -165,7 +165,7 @@ jobs:
             new-image: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         repository: linuxppc/ci-scripts
 
