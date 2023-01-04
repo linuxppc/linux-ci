@@ -108,7 +108,7 @@ jobs:
         ./arch/powerpc/tools/ci-build.sh
 
     - name: Archive artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.defconfig }}-${{ matrix.image }}
         path: |
@@ -181,7 +181,7 @@ jobs:
     - name: Install dependencies
       run: sudo apt install -y ${{ matrix.packages }} python3-pexpect python3-termcolor python3-yaml
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v3
       with:
         name: ${{ matrix.defconfig }}-${{ matrix.new-image }}
 
@@ -195,7 +195,7 @@ jobs:
       run: ./scripts/boot/qemu-${{ matrix.machine_2 }}
       if: matrix.machine_2 != ''
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v3
       with:
         name: ${{ matrix.defconfig }}-${{ matrix.old-image }}
 

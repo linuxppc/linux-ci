@@ -66,7 +66,7 @@ jobs:
       run: grep /linux/arch/powerpc ~/output/sparse.log
 
     - name: Archive artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: sparse-${{ matrix.defconfig }}-${{ matrix.image }}.log
         path: |

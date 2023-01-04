@@ -52,7 +52,7 @@ jobs:
         ./arch/powerpc/tools/ci-build.sh
 
     - name: Archive artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.defconfig }}-${{ matrix.image }}
         path: |
