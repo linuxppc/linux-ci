@@ -26,12 +26,12 @@ jobs:
     strategy:
       matrix:
         defconfig: [ppc64, pmac32, mpc885_ads_defconfig]
-        image: [ubuntu-22.04]
+        image: [fedora-37]
         subarch: [ppc64]
         include:
           - subarch: ppc64le
             defconfig: ppc64le
-            image: ubuntu-22.04
+            image: fedora-37
 
     env:
       ARCH: powerpc
