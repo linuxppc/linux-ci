@@ -70,7 +70,7 @@ if [[ -n $KBUILD_EXTRA_WARN ]]; then
     cmd+="-e KBUILD_EXTRA_WARN=$KBUILD_EXTRA_WARN "
 fi
 
-cmd+="linuxppc/build:$IMAGE-$(uname -m) "
+cmd+="ghcr.io/linuxppc/build:$IMAGE-$(uname -m) "
 cmd+="/bin/container-build.sh $TARGET"
 
 (set -x; $cmd)
