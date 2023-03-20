@@ -18,6 +18,8 @@ on:
       - 'tools/include/**'
       - 'tools/lib/**'
       - 'tools/scripts/**'
+      # Change to workflow triggers a build
+      - '.github/workflows/powerpc-perf.yml'
 
 jobs:
   perf:
