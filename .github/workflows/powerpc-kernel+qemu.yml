@@ -54,10 +54,8 @@ jobs:
 
           # corenet64_smp
           - defconfig: corenet64_smp_defconfig
-            merge_config: /linux/arch/powerpc/configs/ppc64e-qemu.config
             image: fedora-37
           - defconfig: corenet64_smp_defconfig
-            merge_config: /linux/arch/powerpc/configs/ppc64e-qemu.config
             image: korg-5.5.0
 
           # g5
