@@ -23,7 +23,7 @@ jobs:
             defconfig: ppc64le_allmodconfig
             image: fedora-37
           - subarch: ppc64le
-            defconfig: allmodconfig
+            defconfig: allyesconfig
             image: fedora-37
             merge_config: /linux/arch/powerpc/configs/le.config
           # ppc64 allmod and allyes
