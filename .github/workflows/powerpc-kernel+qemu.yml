@@ -140,6 +140,14 @@ jobs:
             old-image: korg-5.5.0
             new-image: fedora-38
 
+          - defconfig: ppc64le_guest_defconfig
+            machine: powernv+p8+tcg
+            machine_2: powernv+p9+tcg
+            packages: qemu-system-ppc64
+            rootfs: ppc64le-rootfs.cpio.gz
+            old-image: korg-5.5.0
+            new-image: fedora-38
+
           - defconfig: ppc44x_defconfig
             machine: 44x
             packages: qemu-system-ppc
