@@ -2554,11 +2554,10 @@ do_vmi_align_munmap(struct vma_iterator *vmi, struct vm_area_struct *vma,
 	mas_set(&mas_detach, start);
 	remove_mt(mm, &mas_detach);
 	__mt_destroy(&mt_detach);
+	validate_mm(mm);
 	if (unlock)
 		mmap_read_unlock(mm);
 
-
-	validate_mm(mm);
 	return 0;
 
 clear_tree_failed:
@@ -2572,6 +2571,7 @@ end_split_failed:
 	__mt_destroy(&mt_detach);
 start_split_failed:
 map_count_exceeded:
+	validate_mm(mm);
 	return error;
 }
 
@@ -3020,12 +3020,9 @@ int do_vma_munmap(struct vma_iterator *vmi, struct vm_area_struct *vma,
 		bool unlock)
 {
 	struct mm_struct *mm = vma->vm_mm;
-	int ret;
 
 	arch_unmap(mm, start, end);
-	ret = do_vmi_align_munmap(vmi, vma, mm, start, end, uf, unlock);
-	validate_mm(mm);
-	return ret;
+	return do_vmi_align_munmap(vmi, vma, mm, start, end, uf, unlock);
 }
 
 /*
