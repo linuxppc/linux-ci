@@ -21,26 +21,26 @@ jobs:
           # ppc64le allmod and allyes
           - subarch: ppc64le
             defconfig: ppc64le_allmodconfig
-            image: fedora-37
+            image: fedora-38
           - subarch: ppc64le
             defconfig: allyesconfig
-            image: fedora-37
+            image: fedora-38
             merge_config: /linux/arch/powerpc/configs/le.config
           # ppc64 allmod and allyes
           - subarch: ppc64
             defconfig: allmodconfig
-            image: fedora-37
+            image: fedora-38
           - subarch: ppc64
             defconfig: allyesconfig
-            image: fedora-37
+            image: fedora-38
           # ppc32 allmod
           - subarch: ppc
             defconfig: ppc32_allmodconfig
-            image: fedora-37
+            image: fedora-38
           # ppc64 book3e allmod
           - subarch: ppc64
             defconfig: ppc64_book3e_allmodconfig
-            image: fedora-37
+            image: fedora-38
 
     env:
       ARCH: powerpc
