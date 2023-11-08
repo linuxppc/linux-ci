@@ -1,0 +1,84 @@
+name: powerpc/clang
+
+# Controls when the action will run.
+on:
+  # This allows the build to be triggered manually via the github UI.
+  workflow_dispatch:
+
+  push:
+    # This triggers the build on a push to any branch
+    branches:
+    - '**'
+    # As long as one of these paths matches
+    paths:
+      - '!tools/**'		   	# ignore tools
+      - '!samples/**'		   	# ignore samples
+      - '!Documentation/**'		# ignore Documentation
+      - '!arch/**'			# ignore arch changes
+      - 'arch/powerpc/**'		# but not arch/powerpc
+      - 'arch/Kconfig'			# or common bits in arch
+      - '**'				# anything else triggers a build
+
+jobs:
+  kernel:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        defconfig: [ppc64, corenet64_smp, pmac32, ppc40x, mpc885_ads]
+        image: [fedora-38]
+        subarch: [ppc64]
+        include:
+          - subarch: ppc64le
+            defconfig: ppc64le
+            image: fedora-38
+
+    env:
+      CLANG: 1
+      LLVM_IAS: 0
+      ARCH: powerpc
+      TARGET: kernel
+      CCACHE: 1
+      SUBARCH: ${{ matrix.subarch }}
+      IMAGE: ${{ matrix.image }}
+      DEFCONFIG: ${{ matrix.defconfig }}
+      MERGE_CONFIG: /linux/arch/powerpc/configs/disable-werror.config
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Register problem matchers
+      run: |
+        echo "::add-matcher::.github/problem-matchers/compiler-source.json"
+        echo "::add-matcher::.github/problem-matchers/compiler-non-source.json"
+
+    - name: Load ccache
+      uses: actions/cache@v3
+      with:
+        path: ~/.ccache
+        key: ${{ matrix.image }}-${{ matrix.subarch }}-${{ matrix.defconfig }}
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build
+      run: |
+        mkdir -p ~/.ccache
+        ./arch/powerpc/tools/ci-build.sh
+
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.defconfig }}-${{ matrix.image }}
+        path: |
+          ~/output/vmlinux
+          ~/output/.config
+          ~/output/System.map
+          ~/output/modules.tar.bz2
+          ~/output/arch/powerpc/boot/zImage
+          ~/output/arch/powerpc/boot/uImage

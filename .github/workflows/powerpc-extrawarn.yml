@@ -1,0 +1,71 @@
+name: powerpc/extrawarn
+
+# Controls when the action will run.
+on:
+  # Only when triggered manually via the github UI.
+  workflow_dispatch:
+
+jobs:
+  kernel:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        defconfig: [ppc64, corenet64_smp, pmac32, ppc40x, ppc44x, mpc885_ads, corenet32_smp]
+        image: [fedora-38, korg-5.5.0]
+        subarch: [ppc64]
+        include:
+          - subarch: ppc64le
+            defconfig: ppc64le
+            image: korg-5.5.0
+          - subarch: ppc64le
+            defconfig: ppc64le
+            image: fedora-38
+
+    env:
+      ARCH: powerpc
+      TARGET: kernel
+      CCACHE: 1
+      SUBARCH: ${{ matrix.subarch }}
+      IMAGE: ${{ matrix.image }}
+      DEFCONFIG: ${{ matrix.defconfig }}
+      MERGE_CONFIG: /linux/arch/powerpc/configs/disable-werror.config
+      KBUILD_EXTRA_WARN: 1
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Register problem matchers
+      run: |
+        echo "::add-matcher::.github/problem-matchers/compiler-source.json"
+        echo "::add-matcher::.github/problem-matchers/compiler-non-source.json"
+
+    - name: Load ccache
+      uses: actions/cache@v3
+      with:
+        path: ~/.ccache
+        key: ${{ matrix.image }}-${{ matrix.subarch }}-${{ matrix.defconfig }}
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build
+      run: |
+        mkdir -p ~/.ccache
+        ./arch/powerpc/tools/ci-build.sh
+
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.defconfig }}-${{ matrix.image }}
+        path: |
+          ~/output/vmlinux
+          ~/output/.config
+          ~/output/System.map
+          ~/output/modules.tar.bz2
+          ~/output/arch/powerpc/boot/zImage
+          ~/output/arch/powerpc/boot/uImage
