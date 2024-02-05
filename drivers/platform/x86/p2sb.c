@@ -65,7 +65,7 @@ static bool p2sb_valid_resource(struct resource *res)
 /* Copy resource from the first BAR of the device in question */
 static void p2sb_read_bar0(struct pci_dev *pdev, struct resource *mem)
 {
-	struct resource *bar0 = &pdev->resource[0];
+	struct resource *bar0 = pci_resource_n(pdev, 0);
 
 	/* Make sure we have no dangling pointers in the output */
 	memset(mem, 0, sizeof(*mem));
@@ -94,7 +94,6 @@ static void p2sb_scan_and_cache_devfn(struct pci_bus *bus, unsigned int devfn)
 	cache->bus_dev_id = bus->dev.id;
 
 	pci_stop_and_remove_bus_device(pdev);
-	return;
 }
 
 static int p2sb_scan_and_cache(struct pci_bus *bus, unsigned int devfn)
@@ -136,9 +135,10 @@ static struct pci_bus *p2sb_get_bus(struct pci_bus *bus)
 
 static int p2sb_cache_resources(void)
 {
-	struct pci_bus *bus;
 	unsigned int devfn_p2sb;
 	u32 value = P2SBC_HIDE;
+	struct pci_bus *bus;
+	u16 class;
 	int ret;
 
 	/* Get devfn for P2SB device itself */
@@ -148,6 +148,14 @@ static int p2sb_cache_resources(void)
 
 	bus = p2sb_get_bus(NULL);
 	if (!bus)
+		return -ENODEV;
+
+	/*
+	 * When a device with same devfn exists and its device class is not
+	 * PCI_CLASS_MEMORY_OTHER for P2SB, do not touch it.
+	 */
+	pci_bus_read_config_word(bus, devfn_p2sb, PCI_CLASS_DEVICE, &class);
+	if (!PCI_POSSIBLE_ERROR(class) && class != PCI_CLASS_MEMORY_OTHER)
 		return -ENODEV;
 
 	/*
