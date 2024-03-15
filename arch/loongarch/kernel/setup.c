@@ -260,7 +260,7 @@ static void __init arch_reserve_crashkernel(void)
 	char *cmdline = boot_command_line;
 	bool high = false;
 
-	if (!IS_ENABLED(CONFIG_KEXEC_CORE))
+	if (!IS_ENABLED(CONFIG_CRASH_RESERVE))
 		return;
 
 	ret = parse_crashkernel(cmdline, memblock_phys_mem_size(),
@@ -490,7 +490,7 @@ static int __init add_legacy_isa_io(struct fwnode_handle *fwnode,
 	}
 
 	vaddr = (unsigned long)(PCI_IOBASE + range->io_start);
-	ioremap_page_range(vaddr, vaddr + size, hw_start, pgprot_device(PAGE_KERNEL));
+	vmap_page_range(vaddr, vaddr + size, hw_start, pgprot_device(PAGE_KERNEL));
 
 	return 0;
 }
