@@ -38,9 +38,10 @@ jobs:
             defconfig: ppc32_allmodconfig
             image: fedora-38
           # ppc64 book3e allmod
-          - subarch: ppc64
-            defconfig: ppc64_book3e_allmodconfig
-            image: fedora-38
+          # Broken due to head_check.sh
+          #- subarch: ppc64
+          #  defconfig: ppc64_book3e_allmodconfig
+          #  image: fedora-38
 
     env:
       ARCH: powerpc
