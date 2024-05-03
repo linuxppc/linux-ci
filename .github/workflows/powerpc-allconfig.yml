@@ -77,15 +77,3 @@ jobs:
       run: |
         mkdir -p ~/.ccache
         ./arch/powerpc/tools/ci-build.sh
-
-    - name: Archive artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ matrix.defconfig }}-${{ matrix.image }}
-        path: |
-          ~/output/vmlinux
-          ~/output/.config
-          ~/output/System.map
-          ~/output/modules.tar.bz2
-          ~/output/arch/powerpc/boot/zImage
-          ~/output/arch/powerpc/boot/uImage
