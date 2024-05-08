@@ -27,12 +27,12 @@ jobs:
       fail-fast: false
       matrix:
         defconfig: [ppc64, corenet64_smp, pmac32, ppc40x, mpc885_ads]
-        image: [fedora-38]
+        image: [fedora-39]
         subarch: [ppc64]
         include:
           - subarch: ppc64le
             defconfig: ppc64le
-            image: fedora-38
+            image: fedora-39
 
     env:
       CLANG: 1

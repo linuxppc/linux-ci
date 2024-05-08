@@ -21,27 +21,27 @@ jobs:
           # ppc64le allmod and allyes
           - subarch: ppc64le
             defconfig: ppc64le_allmodconfig
-            image: fedora-38
+            image: fedora-39
           - subarch: ppc64le
             defconfig: allyesconfig
-            image: fedora-38
+            image: fedora-39
             merge_config: /linux/arch/powerpc/configs/le.config
           # ppc64 allmod and allyes
           - subarch: ppc64
             defconfig: allmodconfig
-            image: fedora-38
+            image: fedora-39
           - subarch: ppc64
             defconfig: allyesconfig
-            image: fedora-38
+            image: fedora-39
           # ppc32 allmod
           - subarch: ppc
             defconfig: ppc32_allmodconfig
-            image: fedora-38
+            image: fedora-39
           # ppc64 book3e allmod
           # Broken due to head_check.sh
           #- subarch: ppc64
           #  defconfig: ppc64_book3e_allmodconfig
-          #  image: fedora-38
+          #  image: fedora-39
 
     env:
       ARCH: powerpc

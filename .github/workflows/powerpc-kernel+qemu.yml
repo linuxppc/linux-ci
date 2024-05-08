@@ -26,12 +26,12 @@ jobs:
     strategy:
       matrix:
         defconfig: [ppc64_defconfig, ppc40x_defconfig, mpc885_ads_defconfig]
-        image: [fedora-38, korg-5.5.0]
+        image: [fedora-39, korg-5.5.0]
         include:
           # ppc64le_guest_defconfig
           - subarch: ppc64le
             defconfig: ppc64le_guest_defconfig
-            image: fedora-38
+            image: fedora-39
           - subarch: ppc64le
             defconfig: ppc64le_guest_defconfig
             image: korg-5.5.0
@@ -39,21 +39,21 @@ jobs:
           # ppc44x
           - defconfig: ppc44x_defconfig
             merge_config: /linux/arch/powerpc/configs/ppc44x-qemu.config
-            image: fedora-38
+            image: fedora-39
           - defconfig: ppc44x_defconfig
             merge_config: /linux/arch/powerpc/configs/ppc44x-qemu.config
             image: korg-5.5.0
 
           # corenet64_smp
           - defconfig: corenet64_smp_defconfig
-            image: fedora-38
+            image: fedora-39
           - defconfig: corenet64_smp_defconfig
             image: korg-5.5.0
 
           # g5
           - defconfig: g5_defconfig
             merge_config: /linux/arch/powerpc/configs/g5-qemu.config
-            image: fedora-38
+            image: fedora-39
           - defconfig: g5_defconfig
             merge_config: /linux/arch/powerpc/configs/g5-qemu.config
             image: korg-5.5.0
@@ -61,13 +61,13 @@ jobs:
           # pmac32
           - defconfig: pmac32_defconfig
             merge_config: /linux/arch/powerpc/configs/pmac32-qemu.config
-            image: fedora-38
+            image: fedora-39
           - defconfig: pmac32_defconfig
             merge_config: /linux/arch/powerpc/configs/pmac32-qemu.config
             image: korg-5.5.0
 
           - defconfig: corenet32_smp_defconfig
-            image: fedora-38
+            image: fedora-39
 
     env:
       ARCH: powerpc
@@ -130,7 +130,7 @@ jobs:
             packages: qemu-system-ppc64
             rootfs: ppc64le-rootfs.cpio.gz
             old-image: korg-5.5.0
-            new-image: fedora-38
+            new-image: fedora-39
 
           - defconfig: ppc64le_guest_defconfig
             machine: powernv+p8+tcg
@@ -138,14 +138,14 @@ jobs:
             packages: qemu-system-ppc64
             rootfs: ppc64le-rootfs.cpio.gz
             old-image: korg-5.5.0
-            new-image: fedora-38
+            new-image: fedora-39
 
           - defconfig: ppc44x_defconfig
             machine: 44x
             packages: qemu-system-ppc
             rootfs: ppc-rootfs.cpio.gz
             old-image: korg-5.5.0
-            new-image: fedora-38
+            new-image: fedora-39
 
           - defconfig: corenet64_smp_defconfig
             machine: ppc64e
@@ -153,21 +153,21 @@ jobs:
             packages: qemu-system-ppc64
             rootfs: ppc64-novsx-rootfs.cpio.gz ppc-rootfs.cpio.gz
             old-image: korg-5.5.0
-            new-image: fedora-38
+            new-image: fedora-39
 
           - defconfig: g5_defconfig
             machine: g5
             packages: qemu-system-ppc64 openbios-ppc
             rootfs: ppc64-rootfs.cpio.gz
             old-image: korg-5.5.0
-            new-image: fedora-38
+            new-image: fedora-39
 
           - defconfig: pmac32_defconfig
             machine: mac99
             packages: qemu-system-ppc openbios-ppc
             rootfs: ppc-rootfs.cpio.gz
             old-image: korg-5.5.0
-            new-image: fedora-38
+            new-image: fedora-39
 
     steps:
     - uses: actions/checkout@v3

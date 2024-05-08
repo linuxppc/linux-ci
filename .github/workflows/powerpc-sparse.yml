@@ -26,12 +26,12 @@ jobs:
     strategy:
       matrix:
         defconfig: [ppc64, pmac32, mpc885_ads_defconfig]
-        image: [fedora-38]
+        image: [fedora-39]
         subarch: [ppc64]
         include:
           - subarch: ppc64le
             defconfig: ppc64le
-            image: fedora-38
+            image: fedora-39
 
     env:
       ARCH: powerpc
