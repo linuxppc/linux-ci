@@ -25,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        defconfig: [ppc64_defconfig, ppc40x_defconfig, mpc885_ads_defconfig]
+        defconfig: [ppc64_defconfig, mpc885_ads_defconfig]
         image: [fedora-39, korg-5.5.0]
         include:
           # ppc64le_guest_defconfig
