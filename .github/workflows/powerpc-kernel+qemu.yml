@@ -184,9 +184,6 @@ jobs:
     - name: Download root disk
       run: make -C root-disks ${{ matrix.rootfs }}
 
-    - name: Set root disk path
-      run: echo "ROOT_DISK_PATH=$PWD/root-disks" >> $GITHUB_ENV
-
     - name: APT update
       run: sudo apt update
 
@@ -196,9 +193,6 @@ jobs:
     - uses: actions/download-artifact@v3
       with:
         name: ${{ matrix.defconfig }}-${{ matrix.new-image }}
-
-    - name: Disable network tests
-      run: echo "QEMU_NET_TESTS=0" >> $GITHUB_ENV
 
     - name: Run qemu-${{ matrix.machine }} with ${{ matrix.new-image }} build kernel
       run: ./scripts/boot/qemu-${{ matrix.machine }}
