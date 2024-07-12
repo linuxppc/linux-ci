@@ -87,7 +87,7 @@ jobs:
         echo "::add-matcher::.github/problem-matchers/compiler-non-source.json"
 
     - name: Load ccache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.ccache
         key: ${{ matrix.image }}-${{ matrix.subarch }}-${{ matrix.defconfig }}
