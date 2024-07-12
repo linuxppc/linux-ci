@@ -79,7 +79,7 @@ jobs:
       MERGE_CONFIG: ${{ matrix.merge_config }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Register problem matchers
       run: |
@@ -170,7 +170,7 @@ jobs:
             new-image: fedora-40
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         repository: linuxppc/ci-scripts
 

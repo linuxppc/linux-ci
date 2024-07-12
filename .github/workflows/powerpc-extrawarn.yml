@@ -33,7 +33,7 @@ jobs:
       KBUILD_EXTRA_WARN: 1
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Register problem matchers
       run: |

@@ -53,7 +53,7 @@ jobs:
       MERGE_CONFIG: /linux/arch/powerpc/configs/disable-werror.config,${{ matrix.merge_config }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Register problem matchers
       run: |

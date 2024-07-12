@@ -44,7 +44,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     # NB this is before the build on merge, so all errors are detected
     # On other branches we ignore these and only report sparse diff results below
