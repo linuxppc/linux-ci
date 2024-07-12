@@ -95,7 +95,7 @@ jobs:
         ./arch/powerpc/tools/smart-sparse-diff.py sparse.log ~/output/sparse.log | tee -a ~/output/sparse-diff.log
 
     - name: Archive artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: sparse-${{ matrix.defconfig }}-${{ matrix.image }}.log
         path: |
