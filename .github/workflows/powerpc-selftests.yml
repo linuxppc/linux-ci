@@ -32,6 +32,7 @@ jobs:
       TARGET: selftests
       CCACHE: 1
       INSTALL: 1
+      VERBOSE: 1
       SUBARCH: ${{ matrix.subarch }}
       IMAGE: ${{ matrix.image }}
 
