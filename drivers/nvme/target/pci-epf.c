@@ -1265,14 +1265,11 @@ static u16 nvmet_pci_epf_create_cq(struct nvmet_ctrl *tctrl,
 	struct nvmet_pci_epf_queue *cq = &ctrl->cq[cqid];
 	u16 status;
 
-	if (test_and_set_bit(NVMET_PCI_EPF_Q_LIVE, &cq->flags))
+	if (test_bit(NVMET_PCI_EPF_Q_LIVE, &cq->flags))
 		return NVME_SC_QID_INVALID | NVME_STATUS_DNR;
 
 	if (!(flags & NVME_QUEUE_PHYS_CONTIG))
 		return NVME_SC_INVALID_QUEUE | NVME_STATUS_DNR;
-
-	if (flags & NVME_CQ_IRQ_ENABLED)
-		set_bit(NVMET_PCI_EPF_Q_IRQ_ENABLED, &cq->flags);
 
 	cq->pci_addr = pci_addr;
 	cq->qid = cqid;
@@ -1290,15 +1287,18 @@ static u16 nvmet_pci_epf_create_cq(struct nvmet_ctrl *tctrl,
 		cq->qes = ctrl->io_cqes;
 	cq->pci_size = cq->qes * cq->depth;
 
-	cq->iv = nvmet_pci_epf_add_irq_vector(ctrl, vector);
-	if (!cq->iv) {
-		status = NVME_SC_INTERNAL | NVME_STATUS_DNR;
-		goto err;
+	if (flags & NVME_CQ_IRQ_ENABLED) {
+		cq->iv = nvmet_pci_epf_add_irq_vector(ctrl, vector);
+		if (!cq->iv)
+			return NVME_SC_INTERNAL | NVME_STATUS_DNR;
+		set_bit(NVMET_PCI_EPF_Q_IRQ_ENABLED, &cq->flags);
 	}
 
 	status = nvmet_cq_create(tctrl, &cq->nvme_cq, cqid, cq->depth);
 	if (status != NVME_SC_SUCCESS)
 		goto err;
+
+	set_bit(NVMET_PCI_EPF_Q_LIVE, &cq->flags);
 
 	dev_dbg(ctrl->dev, "CQ[%u]: %u entries of %zu B, IRQ vector %u\n",
 		cqid, qsize, cq->qes, cq->vector);
@@ -1306,8 +1306,8 @@ static u16 nvmet_pci_epf_create_cq(struct nvmet_ctrl *tctrl,
 	return NVME_SC_SUCCESS;
 
 err:
-	clear_bit(NVMET_PCI_EPF_Q_IRQ_ENABLED, &cq->flags);
-	clear_bit(NVMET_PCI_EPF_Q_LIVE, &cq->flags);
+	if (test_and_clear_bit(NVMET_PCI_EPF_Q_IRQ_ENABLED, &cq->flags))
+		nvmet_pci_epf_remove_irq_vector(ctrl, cq->vector);
 	return status;
 }
 
@@ -1333,7 +1333,7 @@ static u16 nvmet_pci_epf_create_sq(struct nvmet_ctrl *tctrl,
 	struct nvmet_pci_epf_queue *sq = &ctrl->sq[sqid];
 	u16 status;
 
-	if (test_and_set_bit(NVMET_PCI_EPF_Q_LIVE, &sq->flags))
+	if (test_bit(NVMET_PCI_EPF_Q_LIVE, &sq->flags))
 		return NVME_SC_QID_INVALID | NVME_STATUS_DNR;
 
 	if (!(flags & NVME_QUEUE_PHYS_CONTIG))
@@ -1355,7 +1355,7 @@ static u16 nvmet_pci_epf_create_sq(struct nvmet_ctrl *tctrl,
 
 	status = nvmet_sq_create(tctrl, &sq->nvme_sq, sqid, sq->depth);
 	if (status != NVME_SC_SUCCESS)
-		goto out_clear_bit;
+		return status;
 
 	sq->iod_wq = alloc_workqueue("sq%d_wq", WQ_UNBOUND,
 				min_t(int, sq->depth, WQ_MAX_ACTIVE), sqid);
@@ -1365,6 +1365,8 @@ static u16 nvmet_pci_epf_create_sq(struct nvmet_ctrl *tctrl,
 		goto out_destroy_sq;
 	}
 
+	set_bit(NVMET_PCI_EPF_Q_LIVE, &sq->flags);
+
 	dev_dbg(ctrl->dev, "SQ[%u]: %u entries of %zu B\n",
 		sqid, qsize, sq->qes);
 
@@ -1372,8 +1374,6 @@ static u16 nvmet_pci_epf_create_sq(struct nvmet_ctrl *tctrl,
 
 out_destroy_sq:
 	nvmet_sq_destroy(&sq->nvme_sq);
-out_clear_bit:
-	clear_bit(NVMET_PCI_EPF_Q_LIVE, &sq->flags);
 	return status;
 }
 
@@ -1385,7 +1385,6 @@ static u16 nvmet_pci_epf_delete_sq(struct nvmet_ctrl *tctrl, u16 sqid)
 	if (!test_and_clear_bit(NVMET_PCI_EPF_Q_LIVE, &sq->flags))
 		return NVME_SC_QID_INVALID | NVME_STATUS_DNR;
 
-	flush_workqueue(sq->iod_wq);
 	destroy_workqueue(sq->iod_wq);
 	sq->iod_wq = NULL;
 
@@ -2129,8 +2128,15 @@ static int nvmet_pci_epf_configure_bar(struct nvmet_pci_epf *nvme_epf)
 		return -ENODEV;
 	}
 
-	if (epc_features->bar[BAR_0].only_64bit)
-		epf->bar[BAR_0].flags |= PCI_BASE_ADDRESS_MEM_TYPE_64;
+	/*
+	 * While NVMe PCIe Transport Specification 1.1, section 2.1.10, claims
+	 * that the BAR0 type is Implementation Specific, in NVMe 1.1, the type
+	 * is required to be 64-bit. Thus, for interoperability, always set the
+	 * type to 64-bit. In the rare case that the PCI EPC does not support
+	 * configuring BAR0 as 64-bit, the call to pci_epc_set_bar() will fail,
+	 * and we will return failure back to the user.
+	 */
+	epf->bar[BAR_0].flags |= PCI_BASE_ADDRESS_MEM_TYPE_64;
 
 	/*
 	 * Calculate the size of the register bar: NVMe registers first with
