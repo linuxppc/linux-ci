@@ -1716,9 +1716,13 @@ config FUTEX_PI
 	depends on FUTEX && RT_MUTEXES
 	default y
 
+#
+# marked broken for performance reasons; gives us one more cycle to sort things out.
+#
 config FUTEX_PRIVATE_HASH
 	bool
 	depends on FUTEX && !BASE_SMALL && MMU
+	depends on BROKEN
 	default y
 
 config FUTEX_MPOL
@@ -1790,7 +1794,7 @@ config IO_URING
 
 config GCOV_PROFILE_URING
 	bool "Enable GCOV profiling on the io_uring subsystem"
-	depends on GCOV_KERNEL
+	depends on IO_URING && GCOV_KERNEL
 	help
 	  Enable GCOV profiling on the io_uring subsystem, to facilitate
 	  code coverage testing.
@@ -1800,6 +1804,17 @@ config GCOV_PROFILE_URING
 	  Note that this will have a negative impact on the performance of
 	  the io_uring subsystem, hence this should only be enabled for
 	  specific test purposes.
+
+config IO_URING_MOCK_FILE
+	tristate "Enable io_uring mock files (Experimental)" if EXPERT
+	default n
+	depends on IO_URING
+	help
+	  Enable mock files for io_uring subststem testing. The ABI might
+	  still change, so it's still experimental and should only be enabled
+	  for specific test purposes.
+
+	  If unsure, say N.
 
 config ADVISE_SYSCALLS
 	bool "Enable madvise/fadvise syscalls" if EXPERT
