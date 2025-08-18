@@ -19,6 +19,7 @@ powerpc
     elf_hwcaps
     elfnote
     firmware-assisted-dump
+    htm
     hvcs
     imc
     isa-versions
@@ -36,7 +37,6 @@ powerpc
     vas-api
     vcpudispatch_stats
     vmemmap_dedup
-    htm
 
     features
 
