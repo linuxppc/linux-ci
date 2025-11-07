@@ -155,6 +155,13 @@ jobs:
             old-image: korg-8.1.0
             new-image: fedora-40
 
+          - defconfig: corenet32_smp_defconfig
+            machine: e500mc
+            packages: qemu-system-ppc openbios-ppc
+            rootfs: ppc-rootfs.cpio.gz
+            old-image: korg-8.1.0
+            new-image: fedora-40
+
           - defconfig: g5_defconfig
             machine: g5
             packages: qemu-system-ppc64 openbios-ppc
