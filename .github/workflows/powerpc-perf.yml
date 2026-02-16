@@ -27,7 +27,7 @@ jobs:
 
     strategy:
       matrix:
-        image: [ubuntu-22.04, ubuntu-20.04, ubuntu-18.04]
+        image: [ubuntu-22.04, ubuntu-20.04]
         subarch: [ppc64, ppc64le]
 
     env:
