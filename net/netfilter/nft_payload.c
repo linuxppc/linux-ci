@@ -196,7 +196,7 @@ void nft_payload_eval(const struct nft_expr *expr,
 			goto err;
 		break;
 	default:
-		WARN_ON_ONCE(1);
+		DEBUG_NET_WARN_ON_ONCE(1);
 		goto err;
 	}
 	offset += priv->offset;
@@ -603,7 +603,7 @@ void nft_payload_inner_eval(const struct nft_expr *expr, struct nft_regs *regs,
 		offset = tun_ctx->inner_thoff;
 		break;
 	default:
-		WARN_ON_ONCE(1);
+		DEBUG_NET_WARN_ON_ONCE(1);
 		goto err;
 	}
 	offset += priv->offset;
@@ -866,7 +866,7 @@ static void nft_payload_set_eval(const struct nft_expr *expr,
 			goto err;
 		break;
 	default:
-		WARN_ON_ONCE(1);
+		DEBUG_NET_WARN_ON_ONCE(1);
 		goto err;
 	}
 
@@ -916,6 +916,9 @@ static int nft_payload_set_init(const struct nft_ctx *ctx,
 	u32 csum_offset, offset, csum_type = NFT_PAYLOAD_CSUM_NONE;
 	struct nft_payload_set *priv = nft_expr_priv(expr);
 	int err;
+
+	if (ctx->net->user_ns != &init_user_ns)
+		return -EPERM;
 
 	priv->base        = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_BASE]));
 	priv->len         = ntohl(nla_get_be32(tb[NFTA_PAYLOAD_LEN]));
